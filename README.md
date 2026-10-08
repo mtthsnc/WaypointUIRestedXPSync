@@ -71,13 +71,11 @@ instructions remain in RestedXP.
 The repository contains only this sync addon. Install RXPGuides and Waypoint UI
 separately; their source, guide content, and artwork are not bundled.
 
-Run `python -m pip install -r requirements-dev.txt`, then `python verify.py`.
-These are Lua 5.1 checks with mocked WoW APIs, not a substitute for in-game tests.
 Run `python package.py` to create an installable ZIP in `dist/`.
 
-GitHub Actions runs verification and packages changes to `main` and pull requests.
-Update the TOC version and changelog before pushing an annotated `vX.Y.Z` tag.
-Version tags create a draft GitHub release with the ZIP for review before publication.
+GitHub Actions packages version tags and manual runs. Publish releases from the
+GitHub Releases page and attach the generated ZIP. Validation-only files are
+not included in this repository.
 
 CurseForge publishing is not connected yet. It requires a project ID, confirmed
 supported game versions, dependency project relations, and an upload token stored
