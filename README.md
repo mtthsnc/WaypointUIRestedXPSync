@@ -1,84 +1,69 @@
 # WaypointUIRestedXPSync
 
-Creates one Waypoint UI stored map pin for each active RestedXP step with a
-valid destination. Steps are ordered by guide index, and the first navigable
-active step becomes the primary in-world marker. Within a step, prefers RXP's
-selected arrow destination, then its active pins and coordinate-bearing
-objectives. Neither dependency's files are modified.
+An independent integration that keeps Waypoint UI destinations synchronized with
+RestedXP's active guide steps on World of Warcraft: Forever.
 
-Restart WoW to discover the addon. Enable all three addons. RestedXP's selected
-active destination is followed even when its arrow frame is hidden. Its destination is
-checked four times per second; unchanged destinations are not recreated.
+## Installation
 
-While active, RestedXP takes priority over manual pins and tracked quests.
-Use `/wrxs off` for manual navigation, `/wrxs on` to resume, and `/wrxs status`
-to diagnose. The enabled setting is saved account-wide.
+Download the addon ZIP from GitHub Releases and extract `WaypointUIRestedXPSync`
+into `Interface/AddOns`. Install **RXPGuides** and **Waypoint UI** separately.
+Restart WoW when installing a new addon or adding new source files.
 
-Version 1.2.0 enables Waypoint UI's Custom Map Pins once. Secondary destinations
-appear as map pins, not simultaneous in-world beams; Waypoint UI displays one
-primary in-world marker. Each pin uses its own step's label and icon. Steps
-without usable coordinates are omitted, and the first step WITH coordinates
-is primary. Ending a step or disabling sync removes only pins owned by this
-addon. Unchanged pins are not recreated; changed labels refresh on the next poll.
+Targets Forever interface **16001**. Developed against RXPGuides 4.11.18 and
+Waypoint UI 1.7.3. Version 1.3.0 is pending live in-game verification.
 
-Version 1.2.3 resolves ongoing-objective icons from the pin's own step when
-the coordinate element is travel or a plain note. Kill/collect/complete tasks
-and objective counters use IncompleteQuest; explicit accept/turn-in icons take
-precedence. Waypoint UI's own redirect icon remains under its control and can
-replace the destination icon while it displays a routing waypoint.
+## Behavior
 
-When there is no active arrow destination, only the sync addon's own navigation is
-cleared, without advancing Waypoint UI's queued pins. Prior manual destinations
-are not restored. Audio is suppressed for synchronized waypoint changes.
+The earliest active step with a usable destination becomes the world marker.
+Optional secondary map pins represent other active steps; Waypoint UI still
+renders one primary in-world marker. Labels and icons resolve from the linked
+objective, or the sole unfinished objective when that relationship is unambiguous.
+Ambiguous steps retain the destination instruction rather than borrowing another
+task's description. Unsupported destinations are omitted and reported by debug.
 
-Coordinates must be supported by Blizzard's map waypoint system. Instructions
-without a destination cannot have a marker. Corpse/world-only destinations are
-converted through RestedXP's HereBeDragons library when possible.
+RestedXP updates schedule a combined refresh after 0.1 seconds. A one-second
+fallback catches missed changes. Disabled sync cancels its fallback timer.
+Intermediate Waypoint UI route waypoints are preserved when the destination is
+unchanged. Enabling sync defaults to taking navigation priority.
 
-Compatibility: installed RXPGuides 4.11.18 and Waypoint UI 1.7.3 on Forever.
-RestedXP's arrowFrame/element fields are internal and may require adaptation
-after future RestedXP updates. Live in-game behavior requires verification.
+## Commands
 
-Version 1.2.4 reads live objective text before static tooltips or pooled widgets,
-prefers unfinished objectives over travel instructions, and rejects stale arrow
-objects from other steps/guides. Stored pins and the world marker use one resolved
-snapshot per poll. Metadata changes update on the next 0.25-second poll without
-the older one-second label delay; unchanged pins are not recreated.
+- `/wrxs on` or `/wrxs off`: enable or disable synchronization.
+- `/wrxs status`: show current synchronization state.
+- `/wrxs debug`: show client/dependency versions, guide, selected steps, label and
+  coordinate sources, rejected destinations, and the last error.
+- `/wrxs mode always`: let RestedXP take navigation priority.
+- `/wrxs mode manual`: pause when a different manual waypoint is detected.
+- `/wrxs resume`: explicitly resume following RestedXP after a manual pause.
+- `/wrxs pins on` or `/wrxs pins off`: enable or disable secondary map pins.
+  Turning them on also enables Waypoint UI's Custom Map Pins setting.
+- `/wrxs scale fixed` or `/wrxs scale distance`: explicitly set Waypoint UI's
+  global distance-scaling preference. This affects its other waypoints too.
 
-Version 1.0.1 fixes percentage input to Waypoint UI, tolerates native coordinate
-rounding, and restores supertracking without recreating an unchanged marker.
+Fresh installs do not alter Waypoint UI preferences automatically. Existing
+preferences from earlier sync versions are preserved. Disabling secondary sync
+pins does not disable Waypoint UI's global Custom Map Pins feature.
 
-Version 1.1.0 shows the destination's linked objective or rendered guide text,
-including progress supplied by RestedXP. Falls back to an unfinished objective
-in the same step, destination title, then RestedXP. Removes texture/color/link
-markup, shortens long labels, and omits the step number. Label-only refreshes
-were originally limited to once per second; version 1.2.4 removes that delay.
+## Compatibility and support
 
-Version 1.1.2 uses Waypoint UI's existing artwork directly: AvailableQuest for
-accepting quests, CompleteQuest for turn-ins, IncompleteQuest for ongoing
-collection/combat/objectives, and Navigation for travel. All follow Waypoint
-UI's recoloring style and remain consistent during text updates.
+The integration reads RestedXP internal guide data through `RestedXP.lua` and uses
+Waypoint UI's public navigation API from `Sync.lua`. Dependency updates may require
+adapter changes. Missing required Waypoint UI methods pause synchronization with
+a diagnostic instead of repeatedly raising Lua errors. Report issues with the
+output of `/wrxs debug` and reproduction steps, without sharing purchased guide files.
 
-Version 1.1.3 applies the requested fixed icon scale once at login by disabling
-Waypoint UI's Use World Scale. Later changes in /wp are respected. Labels are
-limited to approximately 52 bytes, shortened at word
-boundaries where possible, with trailing objective counts retained. Common
-upstairs/downstairs/inside directions are omitted from the marker; the full
-instructions remain in RestedXP.
+[Issues](https://github.com/mtthsnc/WaypointUIRestedXPSync/issues)
 
-## Development and releases
+## Releases
 
-The repository contains only this sync addon. Install RXPGuides and Waypoint UI
-separately; their source, guide content, and artwork are not bundled.
+Run `python package.py` to build the ZIP in `dist/`; no third-party Python packages
+are needed. The ZIP contains only runtime files and addon documentation.
+Update the TOC version and changelog together before creating `vX.Y.Z` tags.
+Tags build one ZIP and publish it as a GitHub pre-release by default. Once tested
+in-game, promote that pre-release to a stable release. Manual workflow runs build
+an artifact without publishing. Validation-only files are not stored here.
 
-Run `python package.py` to create an installable ZIP in `dist/`.
-
-GitHub Actions packages version tags and manual runs. Publish releases from the
-GitHub Releases page and attach the generated ZIP. Validation-only files are
-not included in this repository.
-
-CurseForge publishing is not connected yet. It requires a project ID, confirmed
-supported game versions, dependency project relations, and an upload token stored
-as a repository secret. The current TOC lists local client interface versions;
-that does not establish that all those versions have been tested or are accepted
-by CurseForge. No redistribution license has been selected yet.
+CurseForge setup remains pending: choose a license, create the project, confirm
+Forever game-version IDs, and configure required dependency relations. Do not
+publish another addon's code, paid guide content, or artwork in this ZIP. The
+in-game icons are referenced from the separately installed Waypoint UI addon.

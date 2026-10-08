@@ -5,7 +5,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parent
 NAME = "WaypointUIRestedXPSync"
-FILES = ("Sync.lua", f"{NAME}.toc", "README.md", "CHANGELOG.md")
+FILES = ("RestedXP.lua", "Sync.lua", f"{NAME}.toc", "README.md", "CHANGELOG.md")
 
 def build():
     toc = (ROOT / f"{NAME}.toc").read_text(encoding="utf-8")

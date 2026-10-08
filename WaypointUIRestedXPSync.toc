@@ -1,9 +1,10 @@
-## Interface: 16001, 120100, 120105
+## Interface: 16001
 ## Title: WaypointUIRestedXPSync
 ## Notes: Keeps Waypoint UI synchronized with RestedXP's selected arrow destination.
-## Author: Local customization
-## Version: 1.2.4
+## Author: mtthsnc
+## Version: 1.3.0
 ## Dependencies: RXPGuides, WaypointUI
 ## SavedVariables: WaypointUIRestedXPSyncDB, WaypointRXPBridgeDB, WaypointRestedXPBridgeDB
 
+RestedXP.lua
 Sync.lua
